@@ -21,16 +21,24 @@ class SearchDoubanFilm():
         if r.status_code != 200:
             print("豆瓣电影的搜索页面没有正常打开")
         web_data = r.text
+        # print(web_data)
         selector = etree.HTML(web_data)
-        search_result_lists = selector.xpath('//*[@id="content"]/div/div[1]/div[3]')
-        print(search_result_lists)
-        # for list in search_result_lists:
-            # title = list.xpath('/div[2]/div/h3/a/text()')
-            # title = list.xpath('/div[2]/div[1]/div[2]/div/h3/a')
-            # print(title)
-            # //*[@id="content"]
-            # //*[@id="content"]/div/div[1]/div[3]
-            # //*[@id="content"]/div/div[1]/div[3]/div[2]/div[1]/div[2]/div/h3/a
+        search_result_lists = selector.xpath('//div[@class="result-list"]/div[@class="result"]')
+        # print(search_result_lists)
+        for list in search_result_lists:
+            if len(list.xpath('div[2]/div[1]/h3/span/text()')) == 0:
+                continue
+            if list.xpath('div[2]/div[1]/h3/span/text()')[0] not in ['[电影]', '[电视剧]']:
+                continue
+            print("___________________________________")
+            print(list.xpath('div[2]/div[1]/h3/span/text()'))
+            print(list.xpath('div[2]/div[1]/h3/a/text()'))
+            print(list.xpath('div[2]/div[1]/h3/a/text()'))
+            print(list.xpath('div[2]/div[1]/div/span[2]/text()')[0]+' 分')
+            print(list.xpath('div[2]/div[1]/div/span[3]/text()')[0])
+            # print(list.xpath('div[2]/div[1]/div/span[4]/text()')[0])
+            # !要验证是不是有这个项，然后再输出。
+            
         
 if __name__ == '__main__':
     s = SearchDoubanFilm(word='行尸走肉')
