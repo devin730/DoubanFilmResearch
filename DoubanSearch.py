@@ -38,6 +38,7 @@ class SearchDoubanFilm():
             print(list.xpath('div[2]/div[1]/div/span[3]/text()')[0])
             # print(list.xpath('div[2]/div[1]/div/span[4]/text()')[0])
             # !要验证是不是有这个项，然后再输出。
+            # !搜索的时候是不是可以先跳到专页？
             
         
 if __name__ == '__main__':
