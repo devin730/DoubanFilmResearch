@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #coding: utf-8
-
+#! 这个代码并未投入生产环境
 
 class SplitDescription():
     def __init__(self, lists):

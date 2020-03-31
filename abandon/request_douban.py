@@ -1,6 +1,7 @@
 import requests
 from lxml import etree
 from MyDescription import SplitDescription
+#! 这个代码并未投入生产环境
 
 search_word = '行尸走肉'
 douban_file_url = 'https://www.douban.com/search?source=suggest&q='
