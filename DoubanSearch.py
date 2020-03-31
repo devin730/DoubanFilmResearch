@@ -22,13 +22,13 @@ class SearchDoubanFilm():
         selector = etree.HTML(web_data)
 
         #! 创建七个条目的字典list
-        self.item_dict0 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro'}
-        self.item_dict1 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro'}
-        self.item_dict2 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro'}
-        self.item_dict3 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro'}
-        self.item_dict4 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro'}
-        self.item_dict5 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro'}
-        self.item_dict6 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro'}
+        self.item_dict0 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
+        self.item_dict1 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
+        self.item_dict2 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
+        self.item_dict3 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
+        self.item_dict4 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
+        self.item_dict5 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
+        self.item_dict6 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
         self.item_lists = []
         self.item_lists.append(self.item_dict0)
         self.item_lists.append(self.item_dict1)
@@ -53,8 +53,20 @@ class SearchDoubanFilm():
             self.item_lists[index]['score'] = self.getValue(list.xpath('div[2]/div[1]/div/span[2]/text()'))
             self.item_lists[index]['eva_num'] = self.getValue(list.xpath('div[2]/div[1]/div/span[3]/text()'))
             self.item_lists[index]['intro'] = self.getValue(list.xpath('div[2]/div[1]/div/span[4]/text()'))
+            self.item_lists[index]['url'] = self.GetRightURL(list.xpath('div[2]/div[1]/h3/a/@href'))
+            # print(list.xpath('div[2]/div[1]/h3/a/@href'))
+        # print(self.item_lists)
 
-        print(self.item_lists)
+    def GetRightURL(self, list):
+        if len(list) == 0:
+            return None
+        target = str(list[0])
+        index1 = target.find('subject')
+        index2 = target.find('query')
+        take_url = target[index1+10:index2-4]
+        right_url = 'https://movie.douban.com/subject/' + take_url + '/'
+        print(right_url)
+        return right_url
 
     def checkLengthLegal(self, xpath_selector):
         if len(xpath_selector) == 0:
