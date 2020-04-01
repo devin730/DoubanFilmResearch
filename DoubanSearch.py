@@ -22,40 +22,42 @@ class SearchDoubanFilm():
         selector = etree.HTML(web_data)
 
         #! 创建七个条目的字典list
-        self.item_dict0 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
-        self.item_dict1 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
-        self.item_dict2 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
-        self.item_dict3 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
-        self.item_dict4 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
-        self.item_dict5 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
-        self.item_dict6 = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
+        self.item_dict_standard = {'title': 'title', 'score': 'score', 'eva_num': 'eva_num', 'intro': 'intro', 'url': 'url'}
         self.item_lists = []
-        self.item_lists.append(self.item_dict0)
-        self.item_lists.append(self.item_dict1)
-        self.item_lists.append(self.item_dict2)
-        self.item_lists.append(self.item_dict3)
-        self.item_lists.append(self.item_dict4)
-        self.item_lists.append(self.item_dict5)
-        self.item_lists.append(self.item_dict6)
-        # print(self.item_lists)
+        index = 0
 
         #/ 下面是搜索元素的代码
         search_result_lists = selector.xpath('//div[@class="result-list"]/div[@class="result"]')
-        for index, list in enumerate(search_result_lists):
-            if index >= 7:
-                # print('只搜索前七条，后面的不打印')
-                continue
+        for list in search_result_lists:
+            
             if not self.checkLengthLegal(list.xpath('div[2]/div[1]/h3/span/text()')):
                 continue
             if list.xpath('div[2]/div[1]/h3/span/text()')[0] not in ['[电影]', '[电视剧]']:
                 continue
+
+            temp_item_dict = self.item_dict_standard.copy()
+            self.item_lists.append(temp_item_dict)
+
             self.item_lists[index]['title'] = self.getValue(list.xpath('div[2]/div[1]/h3/a/text()'))
             self.item_lists[index]['score'] = self.getValue(list.xpath('div[2]/div[1]/div/span[2]/text()'))
             self.item_lists[index]['eva_num'] = self.getValue(list.xpath('div[2]/div[1]/div/span[3]/text()'))
             self.item_lists[index]['intro'] = self.getValue(list.xpath('div[2]/div[1]/div/span[4]/text()'))
             self.item_lists[index]['url'] = self.GetRightURL(list.xpath('div[2]/div[1]/h3/a/@href'))
+
+            # !处理一个异常：
+            if self.item_lists[index]['score'] == '(暂无评分)':
+                self.item_lists[index]['intro'] = self.item_lists[index]['eva_num']
+                self.item_lists[index]['eva_num'] = '0人评价'
+                self.item_lists[index]['score'] = '-'
+
             # print(list.xpath('div[2]/div[1]/h3/a/@href'))
-        # print(self.item_lists)
+            index = index + 1
+        self.items_count = len(self.item_lists)
+
+        # *测试一下搜索条目的信息存储
+        for index, itemlist in enumerate(self.item_lists):
+            print(index+1, '/', self.items_count)
+            print(itemlist)
 
     def GetRightURL(self, list):
         if len(list) == 0:

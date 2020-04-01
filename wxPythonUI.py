@@ -1,8 +1,11 @@
 #!/usr/bin/python
 #coding: utf-8
 import wx
-import time
+# import time
 from DoubanSearch import SearchDoubanFilm
+from DoubanMovie import DoubanMovieInfo
+from PIL import Image
+
 
 class Example(wx.Frame):
     
@@ -15,6 +18,7 @@ class Example(wx.Frame):
         self.panel = wx.Panel(self)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer = wx.GridBagSizer(5, 5)
+        # self.sizer.SetMinSize(300, 100)
         self.font = wx.Font(18, wx.DECORATIVE, wx.NORMAL, wx.NORMAL)
         # 标题栏
         text_title = wx.StaticText(self.panel, label="电影搜索小工具")
@@ -43,8 +47,8 @@ class Example(wx.Frame):
         self.sizer.Add(self.text_status, pos=(4, 0), flag=wx.LEFT, border=10)
         
         # *搜索结果以条目的形式显示在下面
-        self.listct = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT)
-        self.listct.InsertColumn(0, '电影名称', wx.LIST_FORMAT_CENTER, width=150)
+        self.listct = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 300))
+        self.listct.InsertColumn(0, '电影名称', wx.LIST_FORMAT_CENTER, width=120)
         self.listct.InsertColumn(1, '评分', wx.LIST_FORMAT_RIGHT, width=50)
         self.listct.InsertColumn(2, '评分人数', wx.LIST_FORMAT_RIGHT, width=100)
         self.listct.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnDouClick)
@@ -56,33 +60,32 @@ class Example(wx.Frame):
         static_box = wx.StaticBox(self.panel, label="影片详细信息", size=(300, 600))
         static_box.SetFont(font2)
         boxsizer = wx.StaticBoxSizer(static_box, wx.VERTICAL)
-        film_icon = wx.StaticBitmap(self.panel, bitmap=wx.Bitmap('./assets/title.jpg'))
-        boxsizer.Add(film_icon, flag=wx.TOP | wx.RIGHT | wx.ALIGN_RIGHT, border=5)
+        self.film_icon = wx.StaticBitmap(self.panel, bitmap=wx.Bitmap('./assets/title.png'))
+        boxsizer.Add(self.film_icon, flag=wx.TOP | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL, border=5)
         
-        text3 = wx.StaticText(self.panel, label="电影名称")
-        boxsizer.Add(text3, flag=wx.TOP | wx.LEFT, border=5)
-        self.tc_film_name = wx.TextCtrl(self.panel, style=wx.TE_READONLY)
-        boxsizer.Add(self.tc_film_name, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
+        self.box_film_title = wx.StaticText(self.panel, label="电影名称:")
+        self.box_film_score = wx.StaticText(self.panel, label="电影评分:")
+        self.box_film_scorecnt = wx.StaticText(self.panel, label="评分人数:")
+        self.box_film_intro = wx.StaticText(self.panel, label="电影简介:", style=wx.TE_MULTILINE)
+        self.box_film_url = wx.StaticText(self.panel, label="豆瓣网页链接:")
+        self.box_film_urltxt = wx.StaticText(self.panel, label="  ")
+        self.box_film_year = wx.StaticText(self.panel, label="电影年代: ")
+        self.box_film_director = wx.StaticText(self.panel, label="导演: ")
+        self.box_film_actors = wx.StaticText(self.panel, label="演员: ")
+        self.box_film_types = wx.StaticText(self.panel, label="类型: ")
+        self.box_film_date = wx.StaticText(self.panel, label="上映时间: ")
 
-        text4 = wx.StaticText(self.panel, label="电影评分")
-        boxsizer.Add(text4, flag=wx.TOP | wx.LEFT, border=5)
-        self.tc_film_score = wx.TextCtrl(self.panel, style=wx.TE_READONLY)
-        boxsizer.Add(self.tc_film_score, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
-
-        text5 = wx.StaticText(self.panel, label="评分人数")
-        boxsizer.Add(text5, flag=wx.TOP | wx.LEFT, border=5)
-        self.tc_film_scorenum = wx.TextCtrl(self.panel, style=wx.TE_READONLY)
-        boxsizer.Add(self.tc_film_scorenum, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
-
-        text6 = wx.StaticText(self.panel, label="电影简介")
-        boxsizer.Add(text6, flag=wx.TOP | wx.LEFT, border=5)
-        self.tc_film_intro = wx.TextCtrl(self.panel, style=wx.TE_READONLY)
-        boxsizer.Add(self.tc_film_intro, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
-
-        text7 = wx.StaticText(self.panel, label="豆瓣网页链接")
-        boxsizer.Add(text7, flag=wx.TOP | wx.LEFT, border=5)
-        self.tc_film_url = wx.TextCtrl(self.panel, style=wx.TE_READONLY)
-        boxsizer.Add(self.tc_film_url, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_title, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_score, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_scorecnt, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_year, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_director, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_actors, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_types, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_date, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_url, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_urltxt, flag=wx.TOP | wx.LEFT, border=5)
+        boxsizer.Add(self.box_film_intro, flag=wx.TOP | wx.LEFT, border=5)
 
         btn_douban = wx.Button(self.panel, label="前往豆瓣页", size=(70, 30))
         btn_download = wx.Button(self.panel, label="搜索下载资源", size=(70, 30))
@@ -99,7 +102,7 @@ class Example(wx.Frame):
 
         self.panel.SetSizer(hbox)
         # self.sizer.Fit(self)
-        self.SetSize(800, 600)
+        self.SetSize(800, 550)
 
     def GotoDouban(self, e):
         pass
@@ -111,27 +114,68 @@ class Example(wx.Frame):
         pass
 
     def OnDouClick(self, e):
-        print("Current selection:" + str(e.GetEventObject().GetFirstSelected())+"\n")
+        itemID = e.GetEventObject().GetFirstSelected()
+        # print("Current selection:" + str(itemID)+"\n")
 
+        SubjectURL = self.re.item_lists[itemID]['url']
+        
+        self.movie_re = DoubanMovieInfo(SubjectURL)
+        
+        path = self.movie_re.info_dict['image']
+        self.Image_PreProcessing(tsize=(135, 186), path=path)
+        Film_image = wx.Bitmap(path, wx.BITMAP_TYPE_JPEG)
+        self.film_icon.SetBitmap(Film_image)
+
+        self.box_film_title.SetLabel("电影名称: "+self.movie_re.info_dict['title'])
+        self.box_film_year.SetLabel("电影年代: "+self.movie_re.info_dict['year'])
+        self.box_film_score.SetLabel("电影评分: "+self.re.item_lists[itemID]['score'])
+        self.box_film_scorecnt.SetLabel("评分人数: "+self.re.item_lists[itemID]['eva_num'])
+        self.box_film_director.SetLabel("导演: "+self.movie_re.info_dict['director'])
+        self.box_film_actors.SetLabel("演员: "+self.movie_re.info_dict['actors'])
+        self.box_film_types.SetLabel("类型: "+self.movie_re.info_dict['types'])
+        self.box_film_date.SetLabel("上映时间: "+self.movie_re.info_dict['show_date'])
+        self.box_film_urltxt.SetLabel(self.re.item_lists[itemID]['url'])
+        self.box_film_intro.SetLabel("电影简介: "+self.movie_re.intro)
+
+    def Image_PreProcessing(self, tsize, path):
+        # 待处理图片存储路径
+        im = Image.open(path)
+        # Resize图片大小，入口参数为一个tuple，新的图片大小
+        if im.size == tsize:
+            return
+        else:
+            imBackground = im.resize(tsize)
+            #处理后的图片的存储路径，以及存储格式
+            imBackground.save(path, 'JPEG')
+        return
+            
     def ClickToSearch(self, e):
         self.text_status.SetLabel('开始搜索...')
         # self.tc_search 里存放了需要搜索的电影名称
         txt = self.tc_search.GetValue()
         print(txt)
-        re = SearchDoubanFilm(word=txt)
+        self.re = SearchDoubanFilm(word=txt)
 
-        players = [(re.item_dict0['title'], re.item_dict0['score'], re.item_dict0['eva_num']),
-                   (re.item_dict1['title'], re.item_dict1['score'], re.item_dict1['eva_num']),
-                   (re.item_dict2['title'], re.item_dict2['score'], re.item_dict2['eva_num']),
-                   (re.item_dict3['title'], re.item_dict3['score'], re.item_dict3['eva_num']),
-                   (re.item_dict4['title'], re.item_dict4['score'], re.item_dict4['eva_num']),
-                   (re.item_dict5['title'], re.item_dict5['score'], re.item_dict5['eva_num']),
-                   (re.item_dict6['title'], re.item_dict6['score'], re.item_dict6['eva_num'])]
+        result_item_count = self.re.items_count
+        players = []
 
+        if result_item_count <= 0:
+            #! 没有搜索到，需要设置一个响应机制
+            pass
+
+        # elif result_item_count <= 10:  # 搜索返回的条目比较少
+        for item in self.re.item_lists:
+            (title, score, cnt) = (item['title'], item['score'], item['eva_num'])
+            players.append((title, score, cnt))
+
+        # 先清空之前的条目
+        self.listct.DeleteAllItems()
+        rows = 0
         for i in players:
-            index = self.listct.InsertItem(0, i[0])
+            index = self.listct.InsertItem(rows, i[0])
             self.listct.SetItem(index, 1, i[1])
             self.listct.SetItem(index, 2, i[2])
+            rows = rows + 1
         self.text_status.SetLabel('搜索完成!双击显示详情!')
 
 if __name__ == '__main__':
