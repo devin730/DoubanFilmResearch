@@ -51,8 +51,8 @@ class Example(wx.Frame):
         # *搜索结果以条目的形式显示在下面
         self.listct = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 475))
         self.listct.InsertColumn(0, '电影名称', wx.LIST_FORMAT_CENTER, width=120)
-        self.listct.InsertColumn(1, '评分', wx.LIST_FORMAT_RIGHT, width=50)
-        self.listct.InsertColumn(2, '评分人数', wx.LIST_FORMAT_RIGHT, width=100)
+        self.listct.InsertColumn(1, '评分', wx.LIST_FORMAT_CENTER, width=50)
+        self.listct.InsertColumn(2, '评分人数', wx.LIST_FORMAT_CENTER, width=100)
         self.listct.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnDouClick)
         self.sizer.Add(self.listct, pos=(5, 0), span=(0, 5), flag=wx.TOP | wx.EXPAND | wx.LEFT | wx.RIGHT, border=10)
 
@@ -88,24 +88,47 @@ class Example(wx.Frame):
         boxsizer.Add(self.box_film_urltxt, flag=wx.TOP | wx.LEFT, border=5)
         boxsizer.Add(self.box_film_intro, flag=wx.TOP | wx.LEFT, border=5)
 
-        btn_douban = wx.Button(self.panel, label="前往豆瓣页", size=(70, 30))
         btn_download = wx.Button(self.panel, label="搜索下载资源", size=(70, 30))
         btn_online = wx.Button(self.panel, label="搜索在线播放", size=(70, 30))
-        btn_douban.Bind(wx.EVT_BUTTON, self.GotoDouban)
         btn_download.Bind(wx.EVT_BUTTON, self.SearchDown)
         btn_online.Bind(wx.EVT_BUTTON, self.SearchOnline)
 
-        boxsizer.Add(btn_douban, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
         boxsizer.Add(btn_download, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
         boxsizer.Add(btn_online, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
 
         hbox.Add(boxsizer, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
+        # *在右侧再增加两个框，用于下载搜索结果显示和在线播放搜索显示。
+        static_box2 = wx.StaticBox(self.panel, label="搜索页面", size=(300, 600))
+        static_box2.SetFont(font2)
+        
+        self.listct2 = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 300))
+        self.listct2.InsertColumn(0, '电影名称', wx.LIST_FORMAT_CENTER, width=120)
+        self.listct2.InsertColumn(1, '大小', wx.LIST_FORMAT_CENTER, width=50)
+        self.listct2.InsertColumn(2, '来源', wx.LIST_FORMAT_CENTER, width=100)
+        self.listct2.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.DownloadOnDouClick)
+
+        self.listct3 = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 300))
+        self.listct3.InsertColumn(0, '电影名称', wx.LIST_FORMAT_CENTER, width=120)
+        self.listct3.InsertColumn(1, '在线来源', wx.LIST_FORMAT_CENTER, width=150)
+        self.listct3.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.PlayVideoOnDouClick)
+        
+        boxsizer2 = wx.StaticBoxSizer(static_box2, wx.VERTICAL)
+        boxsizer2.Add(self.listct2, flag=wx.TOP | wx.EXPAND | wx.LEFT | wx.RIGHT, border=10)
+        boxsizer2.Add(self.listct3, flag=wx.TOP | wx.EXPAND | wx.LEFT | wx.RIGHT, border=10)
+        hbox.Add(boxsizer2, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
         self.panel.SetSizer(hbox)
         # self.sizer.Fit(self)
-        self.SetSize(800, 720)
+        self.SetSize(1000, 740)
 
-    def GotoDouban(self, e):
+    def DownloadOnDouClick(self, e):  # !点击下载资源框中的条目，激发函数
+        itemID = e.GetEventObject().GetFirstSelected()
+        print('下载：选择了第', itemID, '个条目。（从0开始计数）')
+        pass
+
+    def PlayVideoOnDouClick(self, e):  # !点击在线播放资源框中的条目，激发函数
+        itemID = e.GetEventObject().GetFirstSelected()
+        print('在线播放：选择了第', itemID, '个条目。（从0开始计数）')
         pass
 
     def SearchDown(self, e):
@@ -121,6 +144,9 @@ class Example(wx.Frame):
         SubjectURL = self.re.item_lists[itemID]['url']
         
         self.movie_re = DoubanMovieInfo(SubjectURL)
+        if self.movie_re.Info_status == 0:
+            msg = wx.MessageDialog(None, '你选择的条目无法打开，请换一个电影！', '错误', wx.OK | wx.ICON_ERROR)
+            msg.ShowModal()
         
         path = self.movie_re.info_dict['image']
         self.Image_PreProcessing(tsize=(135, 186), path=path)
@@ -136,16 +162,14 @@ class Example(wx.Frame):
         self.box_film_types.SetLabel("类型: "+self.movie_re.info_dict['types'])
         self.box_film_date.SetLabel("上映时间: "+self.movie_re.info_dict['show_date'])
         self.box_film_intro.SetValue("电影简介: "+self.movie_re.intro)
+        self.box_film_url.SetLabel("豆瓣网页链接(可双击打开链接):")
 
         self.url_to_open = self.re.item_lists[itemID]['url']
         self.box_film_urltxt.SetValue(self.url_to_open)
         self.box_film_urltxt.Bind(wx.EVT_LEFT_DCLICK, self.OpenURL)
 
     def OpenURL(self, e):
-        print('OpenURL')
         webbrowser.open(url=self.url_to_open, new=0, autoraise=True)
-        print('222')
-        
         return
 
     def Image_PreProcessing(self, tsize, path):
@@ -171,7 +195,8 @@ class Example(wx.Frame):
         players = []
 
         if result_item_count <= 0:
-            #! 没有搜索到，需要设置一个响应机制
+            msg = wx.MessageDialog(None, '没有搜索到您想要的电影条目！', 'Message', wx.OK | wx.ICON_ERROR)
+            msg.ShowModal()
             pass
 
         # elif result_item_count <= 10:  # 搜索返回的条目比较少
