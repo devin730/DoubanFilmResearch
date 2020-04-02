@@ -35,7 +35,8 @@ class Example(wx.Frame):
         text2.SetFont(font2)
         self.sizer.Add(text2, pos=(2, 0), flag=wx.LEFT, border=10)
         
-        self.tc_search = wx.TextCtrl(self.panel)
+        self.tc_search = wx.TextCtrl(self.panel, style=wx.TE_PROCESS_ENTER)
+        self.tc_search.Bind(wx.EVT_TEXT_ENTER, self.ClickToSearch)
         self.sizer.Add(self.tc_search, pos=(3, 0), span=(1, 3), flag=wx.TOP | wx.EXPAND | wx.LEFT, border=10)
         
         button1 = wx.Button(self.panel, label="搜索", size=(70, 30))
@@ -47,7 +48,7 @@ class Example(wx.Frame):
         self.sizer.Add(self.text_status, pos=(4, 0), flag=wx.LEFT, border=10)
         
         # *搜索结果以条目的形式显示在下面
-        self.listct = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 300))
+        self.listct = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 475))
         self.listct.InsertColumn(0, '电影名称', wx.LIST_FORMAT_CENTER, width=120)
         self.listct.InsertColumn(1, '评分', wx.LIST_FORMAT_RIGHT, width=50)
         self.listct.InsertColumn(2, '评分人数', wx.LIST_FORMAT_RIGHT, width=100)
@@ -59,14 +60,10 @@ class Example(wx.Frame):
         # *做一个电影详情的介绍box
         static_box = wx.StaticBox(self.panel, label="影片详细信息", size=(300, 600))
         static_box.SetFont(font2)
-        boxsizer = wx.StaticBoxSizer(static_box, wx.VERTICAL)
-        self.film_icon = wx.StaticBitmap(self.panel, bitmap=wx.Bitmap('./assets/title.png'))
-        boxsizer.Add(self.film_icon, flag=wx.TOP | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL, border=5)
-        
+        self.film_icon = wx.StaticBitmap(self.panel, bitmap=wx.Bitmap('./assets/title.png'), style=wx.ALIGN_CENTER_HORIZONTAL)
         self.box_film_title = wx.StaticText(self.panel, label="电影名称:")
         self.box_film_score = wx.StaticText(self.panel, label="电影评分:")
         self.box_film_scorecnt = wx.StaticText(self.panel, label="评分人数:")
-        self.box_film_intro = wx.StaticText(self.panel, label="电影简介:", style=wx.TE_MULTILINE)
         self.box_film_url = wx.StaticText(self.panel, label="豆瓣网页链接:")
         self.box_film_urltxt = wx.StaticText(self.panel, label="  ")
         self.box_film_year = wx.StaticText(self.panel, label="电影年代: ")
@@ -74,7 +71,10 @@ class Example(wx.Frame):
         self.box_film_actors = wx.StaticText(self.panel, label="演员: ")
         self.box_film_types = wx.StaticText(self.panel, label="类型: ")
         self.box_film_date = wx.StaticText(self.panel, label="上映时间: ")
+        self.box_film_intro = wx.TextCtrl(self.panel, value="电影简介:", size=(300, 100), style=wx.TE_MULTILINE | wx.TE_READONLY)
 
+        boxsizer = wx.StaticBoxSizer(static_box, wx.VERTICAL)
+        boxsizer.Add(self.film_icon, flag=wx.TOP | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL, border=5)
         boxsizer.Add(self.box_film_title, flag=wx.TOP | wx.LEFT, border=5)
         boxsizer.Add(self.box_film_score, flag=wx.TOP | wx.LEFT, border=5)
         boxsizer.Add(self.box_film_scorecnt, flag=wx.TOP | wx.LEFT, border=5)
@@ -102,7 +102,7 @@ class Example(wx.Frame):
 
         self.panel.SetSizer(hbox)
         # self.sizer.Fit(self)
-        self.SetSize(800, 550)
+        self.SetSize(800, 720)
 
     def GotoDouban(self, e):
         pass
@@ -135,7 +135,7 @@ class Example(wx.Frame):
         self.box_film_types.SetLabel("类型: "+self.movie_re.info_dict['types'])
         self.box_film_date.SetLabel("上映时间: "+self.movie_re.info_dict['show_date'])
         self.box_film_urltxt.SetLabel(self.re.item_lists[itemID]['url'])
-        self.box_film_intro.SetLabel("电影简介: "+self.movie_re.intro)
+        self.box_film_intro.SetValue("电影简介: "+self.movie_re.intro)
 
     def Image_PreProcessing(self, tsize, path):
         # 待处理图片存储路径

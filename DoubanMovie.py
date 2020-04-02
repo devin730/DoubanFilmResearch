@@ -33,8 +33,15 @@ class DoubanMovieInfo():
         
         if len(selector.xpath('//*[@id="info"]/span[3]/span[2]/a/text()')) >= 1:
             self.info_dict['actors'] = ''
+            cnt = 0
             for i in selector.xpath('//*[@id="info"]/span[3]/span[2]/a/text()'):
-                self.info_dict['actors'] += (str(i)+"/")
+                cnt += 1
+                if(cnt == 5):
+                    self.info_dict['actors'] += '等等...'
+                    continue
+                elif(cnt > 5):
+                    continue
+                self.info_dict['actors'] += (str(i)+'/')
         else:
             self.info_dict['actors'] = '...'
 
