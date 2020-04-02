@@ -26,10 +26,10 @@ class DoubanMovieInfo():
                           'types': 'types', 'language': 'language', 'show_date': 'show_date',
                           'country': 'country', 'imdb_url': 'imdb_url', 'image': 'image'}
 
-        self.info_dict['title'] = selector.xpath('//*[@id="content"]/h1/span[1]/text()')[0]
-        self.info_dict['year'] = selector.xpath('//*[@id="content"]/h1/span[2]/text()')[0]
-        self.info_dict['director'] = selector.xpath('//*[@id="info"]/span[1]/span[2]/a/text()')[0]
-        self.info_dict['show_date'] = selector.xpath('//span[@property="v:initialReleaseDate"]/text()')[0]
+        self.info_dict['title'] = self.getValue(selector.xpath('//*[@id="content"]/h1/span[1]/text()'))
+        self.info_dict['year'] = self.getValue(selector.xpath('//*[@id="content"]/h1/span[2]/text()'))
+        self.info_dict['director'] = self.getValue(selector.xpath('//*[@id="info"]/span[1]/span[2]/a/text()'))
+        self.info_dict['show_date'] = self.getValue(selector.xpath('//span[@property="v:initialReleaseDate"]/text()'))
         
         if len(selector.xpath('//*[@id="info"]/span[3]/span[2]/a/text()')) >= 1:
             self.info_dict['actors'] = ''
@@ -89,6 +89,12 @@ class DoubanMovieInfo():
             f.write(x.content)
             self.info_dict['image'] = path
             # print('图片保存成功在'+path)
+
+    def getValue(self, xpath_selector):
+        if len(xpath_selector) == 0:
+            return 'None'
+        else:
+            return xpath_selector[0]
 
 
 if __name__ == '__main__':

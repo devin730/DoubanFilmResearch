@@ -5,6 +5,7 @@ import wx
 from DoubanSearch import SearchDoubanFilm
 from DoubanMovie import DoubanMovieInfo
 from PIL import Image
+import webbrowser
 
 
 class Example(wx.Frame):
@@ -65,13 +66,13 @@ class Example(wx.Frame):
         self.box_film_score = wx.StaticText(self.panel, label="电影评分:")
         self.box_film_scorecnt = wx.StaticText(self.panel, label="评分人数:")
         self.box_film_url = wx.StaticText(self.panel, label="豆瓣网页链接:")
-        self.box_film_urltxt = wx.StaticText(self.panel, label="  ")
         self.box_film_year = wx.StaticText(self.panel, label="电影年代: ")
         self.box_film_director = wx.StaticText(self.panel, label="导演: ")
         self.box_film_actors = wx.StaticText(self.panel, label="演员: ")
         self.box_film_types = wx.StaticText(self.panel, label="类型: ")
         self.box_film_date = wx.StaticText(self.panel, label="上映时间: ")
         self.box_film_intro = wx.TextCtrl(self.panel, value="电影简介:", size=(300, 100), style=wx.TE_MULTILINE | wx.TE_READONLY)
+        self.box_film_urltxt = wx.TextCtrl(self.panel, value="", style=wx.TE_READONLY | wx.TE_AUTO_URL, size=(300, -1))
 
         boxsizer = wx.StaticBoxSizer(static_box, wx.VERTICAL)
         boxsizer.Add(self.film_icon, flag=wx.TOP | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL, border=5)
@@ -134,8 +135,18 @@ class Example(wx.Frame):
         self.box_film_actors.SetLabel("演员: "+self.movie_re.info_dict['actors'])
         self.box_film_types.SetLabel("类型: "+self.movie_re.info_dict['types'])
         self.box_film_date.SetLabel("上映时间: "+self.movie_re.info_dict['show_date'])
-        self.box_film_urltxt.SetLabel(self.re.item_lists[itemID]['url'])
         self.box_film_intro.SetValue("电影简介: "+self.movie_re.intro)
+
+        self.url_to_open = self.re.item_lists[itemID]['url']
+        self.box_film_urltxt.SetValue(self.url_to_open)
+        self.box_film_urltxt.Bind(wx.EVT_LEFT_DCLICK, self.OpenURL)
+
+    def OpenURL(self, e):
+        print('OpenURL')
+        webbrowser.open(url=self.url_to_open, new=0, autoraise=True)
+        print('222')
+        
+        return
 
     def Image_PreProcessing(self, tsize, path):
         # 待处理图片存储路径
@@ -145,7 +156,7 @@ class Example(wx.Frame):
             return
         else:
             imBackground = im.resize(tsize)
-            #处理后的图片的存储路径，以及存储格式
+            # 处理后的图片的存储路径，以及存储格式
             imBackground.save(path, 'JPEG')
         return
             
@@ -180,6 +191,6 @@ class Example(wx.Frame):
 
 if __name__ == '__main__':
     app = wx.App()
-    ex = Example(None, title="搜索电影小工具")
+    ex = Example(None, title="戴文搜电影")
     ex.Show()
     app.MainLoop()
