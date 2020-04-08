@@ -12,6 +12,7 @@ class Example(wx.Frame):
     
     def __init__(self, parent, title):
         super(Example, self).__init__(parent, title=title)
+        self.movie_re = None
         self.InitUI()
         self.Centre()
 
@@ -135,6 +136,15 @@ class Example(wx.Frame):
         pass
 
     def SearchOnline(self, e):
+        if self.movie_re is None:
+            print('这个按钮还没起作用')
+            return
+        if self.movie_re.OnlineSourceCount == 0:
+            print('没有搜索到在线资源')
+            return
+        else:
+            print('一共有', self.movie_re.OnlineSourceCount, '个下载资源。')
+            # !去各自网站搜索资源中，代码需要开发
         pass
 
     def OnDouClick(self, e):

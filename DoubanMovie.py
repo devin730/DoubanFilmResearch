@@ -77,7 +77,14 @@ class DoubanMovieInfo():
         else:
             self.intro = '...'
 
-        # print(self.intro)
+        # self.PlayOnlineInfo = 
+        self.OnlineSourceCount = len(selector.xpath('//ul[@class="bs"]/li/a/text()'))
+        self.online_web_name = []
+        for item in selector.xpath('//ul[@class="bs"]/li/a/text()'):
+            item = item.strip()
+            item = item.replace('\n', '')
+            self.online_web_name.append(item)
+
         self.Info_status = 200
     
     def DownloadImage(self, url):
@@ -96,7 +103,10 @@ class DoubanMovieInfo():
         else:
             return xpath_selector[0]
 
+    
+
 
 if __name__ == '__main__':
-    x = DoubanMovieInfo('https://movie.douban.com/subject/3074460/')
-    x = DoubanMovieInfo('https://movie.douban.com/subject/2364086/')
+    # x = DoubanMovieInfo('https://movie.douban.com/subject/3074460/')
+    # x = DoubanMovieInfo('https://movie.douban.com/subject/2364086/')
+    x = DoubanMovieInfo('https://movie.douban.com/subject/3904560/')
