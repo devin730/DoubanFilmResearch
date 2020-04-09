@@ -1,24 +1,29 @@
 # -*- encoding:utf-8 -*-
+import sys
+from os import path
+d = path.dirname(__file__)  # 获取当前路径
+parent_path = path.dirname(d)  # 获取上一级路径
+sys.path.append(parent_path)    # 如果要导入到包在上一级
 import requests
 import re
-import urllib
 from movieSource.fake_user_agent import useragent_random
 from multiprocessing.dummy import Pool as ThreadPool
-import sys
+
+# *阳光电影网站的资源搜索代码，从别处拆下来的轮子
 
 
-class MovieHeaven:
+class SunshineMovie():
     __slots__ = ['__pool', '__all_page_details_url_list', '__search_url', '__search_domain', '__download_domain',
                  '__params']
 
     def __init__(self, parent=None):
         self.__pool = ThreadPool(8)
         self.__all_page_details_url_list = []
-        self.__search_url = "http://s.dydytt.net/plus/s0.php"
+        self.__search_url = "http://s.ygdy8.com/plus/s0.php"
         self.__search_domain = 'http://s.ygdy8.com'
         self.__download_domain = 'http://www.ygdy8.com'
         self.__params = {"typeid": "1",
-                        "keyword": "leetao"}
+                         "keyword": "leetao"}
 
     def __get_headers(self):
         return {"User-Agent": useragent_random()}
@@ -27,8 +32,7 @@ class MovieHeaven:
         if url is None:
             url = self.__search_url
 
-        temp_results = requests.get(
-            url, params=params, headers=self.__get_headers())
+        temp_results = requests.get(url, params=params, headers=self.__get_headers(), timeout=5)
         temp_results.encoding = 'gb2312'
         return temp_results.text
 
@@ -78,8 +82,7 @@ class MovieHeaven:
         and  get the remain pages's results
         """
         first_page_results = self.__search_movie_results(url, params)
-        first_page_resultsList = self.__get_movies_detail_page(
-            first_page_results)
+        first_page_resultsList = self.__get_movies_detail_page(first_page_results)
 
         # get the remain pages's results
         total_page_num = self.__get_page_number_total(first_page_results)
@@ -119,7 +122,8 @@ class MovieHeaven:
 
         return download_url_list
 
-    def get_display_content(self, url, params=None):
+    def get_display_content(self, params=None):
+        url = None
         url_list = self.__get_movie_contents_url(url, params)
         if len(url_list) == 0:
             return ['Not Found']
@@ -128,3 +132,13 @@ class MovieHeaven:
             movie_list = [
                 url for url in all_download_url_list if url is not None and url[-3:] not in ['zip', 'rar', 'exe']]
             return movie_list
+
+
+if __name__ == '__main__':
+    movie = '蝙蝠侠 哥谭骑士'
+    r = SunshineMovie()
+    in_params = {"typeid": "1", "keyword": ""}
+    in_params['keyword'] = movie.encode('gb2312')
+    for item in r.get_display_content(params=in_params):
+        print(item)
+        print('\n')

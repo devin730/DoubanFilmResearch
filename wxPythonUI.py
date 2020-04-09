@@ -1,11 +1,14 @@
 #!/usr/bin/python
 #coding: utf-8
+import sys
+import os
+sys.path.append(os.getcwd())
 import wx
-# import time
 from DoubanSearch import SearchDoubanFilm
 from DoubanMovie import DoubanMovieInfo
 from PIL import Image
 import webbrowser
+from movieSource.SearchMain import DownloadWeb
 
 
 class Example(wx.Frame):
@@ -104,9 +107,9 @@ class Example(wx.Frame):
         static_box2.SetFont(font2)
         
         self.listct2 = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 300))
-        self.listct2.InsertColumn(0, '电影名称', wx.LIST_FORMAT_CENTER, width=120)
-        self.listct2.InsertColumn(1, '大小', wx.LIST_FORMAT_CENTER, width=50)
-        self.listct2.InsertColumn(2, '来源', wx.LIST_FORMAT_CENTER, width=100)
+        self.listct2.InsertColumn(0, '下载链接', wx.LIST_FORMAT_CENTER, width=270)
+        # self.listct2.InsertColumn(1, '大小', wx.LIST_FORMAT_CENTER, width=50)
+        # self.listct2.InsertColumn(1, '地址', wx.LIST_FORMAT_CENTER, width=150)
         self.listct2.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.DownloadOnDouClick)
 
         self.listct3 = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 300))
@@ -133,7 +136,27 @@ class Example(wx.Frame):
         pass
 
     def SearchDown(self, e):
-        pass
+        if self.movie_re is None:
+            print('这个按钮还没起作用')
+            return
+        # name = self.movie_re.info_dict['title']
+        name = self.txt
+        d = DownloadWeb(name=name)
+        links = d.GetLinkLists()
+        if len(links) == 0:
+            print('没有搜索到在线资源')
+            msg = wx.MessageDialog(None, '没有搜索到这个电影的资源',
+                                   '错误', wx.OK | wx.ICON_ERROR)
+            msg.ShowModal()
+            return
+        # 先清空之前的条目
+        self.listct2.DeleteAllItems()
+        rows = 0
+        for i in links:
+            self.listct2.InsertItem(rows, i)
+            rows = rows + 1
+        self.text_status.SetLabel('搜索完成!双击显示详情!')
+        
 
     def SearchOnline(self, e):
         if self.movie_re is None:
@@ -143,7 +166,7 @@ class Example(wx.Frame):
             print('没有搜索到在线资源')
             return
         else:
-            print('一共有', self.movie_re.OnlineSourceCount, '个下载资源。')
+            print('一共有', self.movie_re.OnlineSourceCount, '个在线播放资源。')
             # !去各自网站搜索资源中，代码需要开发
         pass
 
@@ -197,9 +220,9 @@ class Example(wx.Frame):
     def ClickToSearch(self, e):
         self.text_status.SetLabel('开始搜索...')
         # self.tc_search 里存放了需要搜索的电影名称
-        txt = self.tc_search.GetValue()
-        print(txt)
-        self.re = SearchDoubanFilm(word=txt)
+        self.txt = self.tc_search.GetValue()
+        # print(self.txt)
+        self.re = SearchDoubanFilm(word=self.txt)
 
         result_item_count = self.re.items_count
         players = []
