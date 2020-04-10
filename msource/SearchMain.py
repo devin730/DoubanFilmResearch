@@ -4,7 +4,7 @@ from os import path
 d = path.dirname(__file__)  # 获取当前路径
 parent_path = path.dirname(d)  # 获取上一级路径
 sys.path.append(parent_path)    # 如果要导入到包在上一级
-from movieSource.MovieHeaven import SunshineMovie
+from msource.MovieHeaven import SunshineMovie
 
 class DownloadWeb():
     def __init__(self, name):

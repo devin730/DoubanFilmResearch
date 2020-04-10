@@ -6,7 +6,7 @@ parent_path = path.dirname(d)  # 获取上一级路径
 sys.path.append(parent_path)    # 如果要导入到包在上一级
 import requests
 import re
-from movieSource.fake_user_agent import useragent_random
+from msource.fake_user_agent import useragent_random
 from multiprocessing.dummy import Pool as ThreadPool
 
 # *阳光电影网站的资源搜索代码，从别处拆下来的轮子
@@ -31,9 +31,13 @@ class SunshineMovie():
     def __search_movie_results(self, url=None, params=None):
         if url is None:
             url = self.__search_url
-
-        temp_results = requests.get(url, params=params, headers=self.__get_headers(), timeout=5)
-        temp_results.encoding = 'gb2312'
+        temp_results = None
+        try:
+            temp_results = requests.get(url, params=params, headers=self.__get_headers(), timeout=5)
+            temp_results.encoding = 'gb2312'
+        except requests.exceptions.RequestException as e:
+            print(e)
+            return None
         return temp_results.text
 
     def __get_movies_detail_page(self, searchResults):
@@ -82,6 +86,8 @@ class SunshineMovie():
         and  get the remain pages's results
         """
         first_page_results = self.__search_movie_results(url, params)
+        if first_page_results is None:
+            return None
         first_page_resultsList = self.__get_movies_detail_page(first_page_results)
 
         # get the remain pages's results
@@ -125,6 +131,8 @@ class SunshineMovie():
     def get_display_content(self, params=None):
         url = None
         url_list = self.__get_movie_contents_url(url, params)
+        if url_list is None:
+            return ['Connect sunshine movie web station error']
         if len(url_list) == 0:
             return ['Not Found']
         else:

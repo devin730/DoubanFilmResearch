@@ -4,11 +4,11 @@ import sys
 import os
 sys.path.append(os.getcwd())
 import wx
-from DoubanSearch import SearchDoubanFilm
-from DoubanMovie import DoubanMovieInfo
+from mdouban.DoubanSearch import SearchDoubanFilm
+from mdouban.DoubanMovie import DoubanMovieInfo
 from PIL import Image
 import webbrowser
-from movieSource.SearchMain import DownloadWeb
+from msource.SearchMain import DownloadWeb
 
 
 class Example(wx.Frame):
@@ -97,17 +97,20 @@ class Example(wx.Frame):
         btn_download.Bind(wx.EVT_BUTTON, self.SearchDown)
         btn_online.Bind(wx.EVT_BUTTON, self.SearchOnline)
 
+        self.text_status2 = wx.StaticText(self.panel, label="")
+
         boxsizer.Add(btn_download, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
         boxsizer.Add(btn_online, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
+        boxsizer.Add(self.text_status2, flag=wx.TOP | wx.EXPAND | wx.LEFT, border=5)
 
         hbox.Add(boxsizer, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
         # *在右侧再增加两个框，用于下载搜索结果显示和在线播放搜索显示。
-        static_box2 = wx.StaticBox(self.panel, label="搜索页面", size=(300, 600))
+        static_box2 = wx.StaticBox(self.panel, label="搜索页面", size=(600, 600))
         static_box2.SetFont(font2)
         
         self.listct2 = wx.ListCtrl(self.panel, -1, style=wx.LC_REPORT, size=(-1, 300))
-        self.listct2.InsertColumn(0, '下载链接', wx.LIST_FORMAT_CENTER, width=270)
+        self.listct2.InsertColumn(0, '下载链接', wx.LIST_FORMAT_CENTER, width=590)
         # self.listct2.InsertColumn(1, '大小', wx.LIST_FORMAT_CENTER, width=50)
         # self.listct2.InsertColumn(1, '地址', wx.LIST_FORMAT_CENTER, width=150)
         self.listct2.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.DownloadOnDouClick)
@@ -123,7 +126,7 @@ class Example(wx.Frame):
         hbox.Add(boxsizer2, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
         self.panel.SetSizer(hbox)
         # self.sizer.Fit(self)
-        self.SetSize(1000, 740)
+        self.SetSize(1300, 740)
 
     def DownloadOnDouClick(self, e):  # !点击下载资源框中的条目，激发函数
         itemID = e.GetEventObject().GetFirstSelected()
@@ -140,6 +143,7 @@ class Example(wx.Frame):
             print('这个按钮还没起作用')
             return
         # name = self.movie_re.info_dict['title']
+        self.text_status2.SetLabel('正在搜索下载资源')
         name = self.txt
         d = DownloadWeb(name=name)
         links = d.GetLinkLists()
@@ -155,7 +159,7 @@ class Example(wx.Frame):
         for i in links:
             self.listct2.InsertItem(rows, i)
             rows = rows + 1
-        self.text_status.SetLabel('搜索完成!双击显示详情!')
+        self.text_status2.SetLabel('电影天堂网站搜索完成！')
         
 
     def SearchOnline(self, e):
