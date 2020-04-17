@@ -9,6 +9,7 @@ from mdouban.DoubanMovie import DoubanMovieInfo
 from PIL import Image
 import webbrowser
 from msource.SearchMain import DownloadWeb
+from msource.Ciligou import SearchCiligou
 
 
 class Example(wx.Frame):
@@ -139,12 +140,13 @@ class Example(wx.Frame):
         pass
 
     def SearchDown(self, e):
+        name = ''
         if self.movie_re is None:
-            print('这个按钮还没起作用')
-            return
-        # name = self.movie_re.info_dict['title']
+            name = self.txt
+        else:
+            name = self.movie_re.info_dict['title']
+
         self.text_status2.SetLabel('正在搜索下载资源')
-        name = self.txt
         d = DownloadWeb(name=name)
         links = d.GetLinkLists()
         if len(links) == 0:
@@ -159,8 +161,14 @@ class Example(wx.Frame):
         for i in links:
             self.listct2.InsertItem(rows, i)
             rows = rows + 1
-        self.text_status2.SetLabel('电影天堂网站搜索完成！')
-        
+        self.text_status2.SetLabel('电影天堂网站搜索完成\n开始搜索磁力狗链接')
+
+        clists = SearchCiligou(word=name).item_lists
+        print(clists)
+        for i in clists:
+            self.listct2.InsertItem(rows, i['url'])
+            rows = rows + 1
+        self.text_status2.SetLabel('搜索磁力狗链接完成')
 
     def SearchOnline(self, e):
         if self.movie_re is None:
